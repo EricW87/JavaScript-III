@@ -24,7 +24,7 @@ function GameObject(gameAttributes) {
 
 GameObject.prototype.destroy = function() {
 	return `${this.name} was removed from the game.`;
-}
+};
 
 
 /*
@@ -39,9 +39,13 @@ function CharacterStats(characterAttributes) {
 	this.healthPoints = characterAttributes.healthPoints;
 }
 
+
+CharacterStats.prototype = Object.create(GameObject.prototype);
+
 CharacterStats.prototype.takeDamage = function() {
-	return '${this.name} took damage.';
-}
+	return `${this.name} took damage.`;
+};
+
 
 /*
   === Humanoid (Having an appearance or character resembling that of a human.) ===
@@ -61,17 +65,22 @@ function Humanoid(humanAttributes)
 	this.language = humanAttributes.language;
 }
 
+
+Humanoid.prototype = Object.create(CharacterStats.prototype);
+
 Humanoid.prototype.greet = function() {
-	return `${name} offers a greeting in ${language}`;
-}
+	return `${this.name} offers a greeting in ${this.language}`;
+};
  
 /*
   * Inheritance chain: GameObject -> CharacterStats -> Humanoid
   * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
   * Instances of CharacterStats should have all of the same properties as GameObject.
 */
-CharacterStats.prototype = Object.create(GameObject.prototype);
-Humanoid.prototype = Object.create(CharacterStats.prototype);
+
+
+
+
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
 
@@ -125,7 +134,6 @@ const archer = new Humanoid({
 	language: 'Elvish',
 });
 
-console.log(mage.takeDamage()); // Bruce took damage.
 console.log(mage.createdAt); // Today's date
 console.log(archer.dimensions); // { length: 1, width: 2, height: 4 }
 console.log(swordsman.healthPoints); // 15
