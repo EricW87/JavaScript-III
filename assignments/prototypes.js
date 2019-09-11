@@ -150,3 +150,226 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
   // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
   // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+function Hero(heroAttributes)
+{
+	Humanoid.call(this, heroAttributes);
+	this.min_attack_damage = heroAttributes.min_attack_damage;
+	this.max_attack_damage = heroAttributes.max_attack_damage;
+	this.dodge_power = heroAttributes.dodge_power;
+	this.hero_heal_power = heroAttributes.hero_heal_power;
+	this.armor_strength = heroAttributes.armor_strength;
+}
+
+Hero.prototype = Object.create(Humanoid.prototype);
+
+Hero.prototype.attack = function(defender) {
+
+
+	let weapon_index = 0;
+	
+	if(this.weapons.length > 0)
+	{
+		if(this.weapons.length > 1)
+			weapon_index = Math.floor(Math.random() * this.weapons.length);
+
+		console.log(this.name + " chooses to attack with his/her " + this.weapons[weapon_index]);
+	}
+	else
+	{
+		console.log(this.name + " has no weapons!");
+		return true;
+	}
+
+	if(!defender.dodgeAttempt(this.name))
+	{
+		let dmg = Math.floor((Math.random() * this.max_attack_damage) + this.min_attack_damage);
+		console.log(this.name + " struck " + defender.name + " with his " + this.weapons[weapon_index] + "!");
+		
+		if(!defender.takeDamage(dmg))
+			return false;
+	}
+
+	return true;
+}
+
+Hero.prototype.dodgeAttempt = function(attackers_name) {
+	if(this.dodge_power > Math.random())
+	{
+		console.log(this.name + " dodged " + attackers_name + " attack!.");
+		this.heal(); //SPECIAL HERO POWER - HEAL AFTER SUCCESSFUL DODGE
+		return true;
+	}
+	else
+	{
+		console.log(this.name + " dodge failed.");
+		return false;
+
+	}
+}
+
+Hero.prototype.takeDamage = function(damage) {
+	damage -= this.armor_strength;
+	this.healthPoints -= damage;
+	console.log(this.name + " took " + damage + " points of damage.");
+	
+	if(this.healthPoints <= 0)
+	{
+		console.log(this.name + " is dead!");
+		return false;
+	}
+	else
+		console.log(this.name + " has " + this.healthPoints + " remaining.");
+
+	return true;
+}
+
+Hero.prototype.heal = function() {
+	this.healthPoints += this.hero_heal_power;
+	console.log(this.name + " healed for " + this.hero_heal_power);
+}
+
+
+function Villian(villianAttributes)
+{
+	Humanoid.call(this, villianAttributes);
+	this.min_attack_damage = villianAttributes.min_attack_damage;
+	this.max_attack_damage = villianAttributes.max_attack_damage;
+	this.dodge_power = villianAttributes.dodge_power;
+	this.villian_extra_attack_chance =  villianAttributes.villian_extra_attack_chance;
+	this.armor_strength = villianAttributes.armor_strength;
+}
+
+Villian.prototype = Object.create(Humanoid.prototype);
+
+
+Villian.prototype.attack = function(defender) {
+
+	let weapon_index = 0;
+	
+	if(this.weapons.length > 0)
+	{
+		if(this.weapons.length > 1)
+			weapon_index = Math.floor(Math.random() * this.weapons.length);
+
+		console.log(this.name + " chooses to attack with his/her " + this.weapons[weapon_index]);
+	}
+	else
+	{
+		console.log(this.name + " has no weapons!");
+		return true;
+	}
+
+
+	if(!defender.dodgeAttempt(this.name))
+	{
+		let dmg = Math.floor((Math.random() * this.max_attack_damage) + this.min_attack_damage);
+		console.log(this.name + " struck " + defender.name + " with his " + this.weapons[weapon_index] + "!");
+		
+		if(!defender.takeDamage(dmg))
+			return false;
+	}
+
+
+	if(!this.extraAttack(defender)) //SPECIAL VILLIAN POWER - CHANCE FOR AN EXTRA ATTACK IF DEFENDER DOESN'T DODGE
+		return false;
+
+	return true;
+}
+
+Villian.prototype.dodgeAttempt = function(attackers_name) {
+	if(this.dodge_power > Math.random())
+	{
+		console.log(this.name + " dodged " + attackers_name + " attack!.");
+		return true;
+	}
+	else
+	{
+		console.log(this.name + " dodge failed.");
+		return false;
+
+	}
+}
+
+Villian.prototype.takeDamage = function(damage) {
+	damage -= this.armor_strength;
+	this.healthPoints -= damage;
+	console.log(this.name + " took " + damage + " points of damage.");
+	
+	if(this.healthPoints <= 0)
+	{
+		console.log(this.name + " is dead!");
+		return false;
+	}
+	else
+		console.log(this.name + " has " + this.healthPoints + " remaining.");
+
+	return true;
+}
+
+Villian.prototype.extraAttack = function(defender) {
+	if(this.villian_extra_attack_chance > Math.random())
+	{
+		console.log(this.name + " gets an extra attack!");
+		if(!this.attack(defender))
+			return false;
+	}
+
+	return true;
+}
+
+/***********************************/
+
+const goodGuy = new Hero({
+	createdAt: new Date(),
+	dimensions: {
+  		length: 2,
+  		width: 2,
+  		height: 2,
+	},
+	healthPoints: 100,
+	name: 'Good Guy',
+	team: 'The Round Table',
+	weapons: [
+	  'Giant Sword',
+	  'Shield',
+	],
+	language: 'Common Tongue',
+	min_attack_damage: 1,
+	max_attack_damage: 5,
+	dodge_power: .15,
+	hero_heal_power: 3,
+	armor_strength: 0
+});
+
+const badGuy = new Villian({
+	createdAt: new Date(),
+	dimensions: {
+  		length: 1,
+  		width: 2,
+  		height: 4,
+	},
+	healthPoints: 100,
+	name: 'Bad Guy',
+	team: 'Forest Kingdom',
+	weapons: [
+  	'Bow',
+  	'Dagger',
+	],
+	language: 'Elvish',
+
+	min_attack_damage: 1,
+	max_attack_damage: 5,
+	dodge_power: .1,
+	villian_extra_attack_chance: .25,
+	armor_strength: 0
+});
+
+/****game loop******/
+var counter = 0;
+do
+{
+	console.log("\n****Round " + ++counter + "****\n");
+}
+while(goodGuy.attack(badGuy) && badGuy.attack(goodGuy))
+
